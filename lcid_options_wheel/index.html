@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LCID Cash-Secured Put &amp; Wheel Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #12263a;
+      --ink-soft: #3d5166;
+      --paper: #f4f7f9;
+      --paper-2: #e8eef3;
+      --line: rgba(18, 38, 58, 0.12);
+      --teal: #0f766e;
+      --teal-deep: #0b5c56;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --rose: #be123c;
+      --rose-soft: #ffe4e6;
+      --ok: #15803d;
+      --ok-soft: #dcfce7;
+      --shadow: 0 18px 40px rgba(18, 38, 58, 0.08);
+      --radius: 18px;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --sans: "DM Sans", system-ui, sans-serif;
+      --display: "Bricolage Grotesque", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(15, 118, 110, 0.16), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(217, 119, 6, 0.14), transparent 50%),
+        linear-gradient(180deg, #eef3f6 0%, var(--paper) 38%, #f8fafb 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image:
+        linear-gradient(rgba(18, 38, 58, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18, 38, 58, 0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 85%);
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-bar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.7s ease both;
+    }
+
+    .brand {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2.4rem, 7vw, 4.4rem);
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      margin: 0;
+    }
+
+    .brand span {
+      color: var(--teal);
+    }
+
+    .asof {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      text-align: right;
+    }
+
+    .hero {
+      display: grid;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      animation: rise 0.8s 0.08s ease both;
+    }
+
+    .lede {
+      max-width: 38rem;
+      font-size: 1.12rem;
+      line-height: 1.55;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .price-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat {
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius);
+    }
+
+    .stat label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 0.35rem;
+    }
+
+    .stat strong {
+      font-family: var(--mono);
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
+    .stat .hint {
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow);
+      padding: 1.35rem;
+      animation: rise 0.85s 0.14s ease both;
+    }
+
+    .panel + .panel { margin-top: 1.1rem; }
+
+    .panel h2 {
+      font-family: var(--display);
+      font-size: clamp(1.4rem, 3vw, 1.85rem);
+      letter-spacing: -0.03em;
+      margin: 0 0 0.35rem;
+    }
+
+    .panel .sub {
+      margin: 0 0 1.1rem;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    .strategy-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.55rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .strategy-tabs button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 0.85rem 0.7rem;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      text-align: left;
+    }
+
+    .strategy-tabs button small {
+      display: block;
+      margin-top: 0.2rem;
+      font-weight: 500;
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+    }
+
+    .strategy-tabs button:hover { transform: translateY(-1px); }
+    .strategy-tabs button.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .strategy-tabs button.active small { color: rgba(255,255,255,0.72); }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .control-stack { display: grid; gap: 1rem; }
+
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.75rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .field label span {
+      font-family: var(--mono);
+      font-weight: 500;
+      color: var(--teal-deep);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    .number-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+    }
+
+    .number-row .field input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 0.7rem 0.75rem;
+      font-family: var(--mono);
+      font-size: 1rem;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(15, 118, 110, 0.05), transparent 40%),
+        #fff;
+      padding: 0.85rem;
+      min-height: 320px;
+    }
+
+    canvas { width: 100%; height: 280px; display: block; }
+
+    .outcome {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .outcome-card {
+      border-radius: 14px;
+      padding: 0.95rem 1rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      display: grid;
+      gap: 0.25rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .outcome-card.live {
+      border-color: var(--teal);
+      background: linear-gradient(135deg, rgba(15,118,110,0.08), #fff 55%);
+      transform: translateY(-1px);
+    }
+
+    .outcome-card .kicker {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+
+    .outcome-card .title {
+      font-family: var(--display);
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .outcome-card .detail {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .metric {
+      border-radius: 14px;
+      padding: 0.85rem;
+      background: var(--paper-2);
+      border: 1px solid transparent;
+    }
+
+    .metric label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-soft);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric strong {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+    }
+
+    .metric.good { background: var(--ok-soft); }
+    .metric.warn { background: var(--amber-soft); }
+    .metric.bad { background: var(--rose-soft); }
+
+    .calls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .call-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1rem;
+      background: #fff;
+      display: grid;
+      gap: 0.45rem;
+      min-height: 100%;
+      transition: transform 0.2s ease;
+    }
+
+    .call-card:hover { transform: translateY(-2px); }
+    .call-card.recommended {
+      border-color: rgba(15, 118, 110, 0.45);
+      background: linear-gradient(180deg, rgba(15,118,110,0.08), #fff 50%);
+    }
+
+    .badge {
+      display: inline-block;
+      width: fit-content;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+      background: rgba(15, 118, 110, 0.12);
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .call-card h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .call-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .verdict {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      background: var(--ink);
+      color: #fff;
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .verdict strong {
+      font-family: var(--display);
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .verdict p {
+      margin: 0;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    .wheel-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .flow {
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.8rem 0.9rem;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .step-num {
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--teal);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .flow-step h4 {
+      margin: 0 0 0.15rem;
+      font-size: 0.98rem;
+    }
+
+    .flow-step p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 0.7rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 0.72rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: var(--paper-2);
+    }
+
+    td.mono { font-family: var(--mono); }
+    tr:last-child td { border-bottom: 0; }
+
+    .footnote {
+      margin-top: 1.5rem;
+      color: var(--ink-soft);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+      .price-strip,
+      .strategy-tabs,
+      .controls,
+      .metrics,
+      .calls-grid,
+      .wheel-layout {
+        grid-template-columns: 1fr;
+      }
+      .number-row { grid-template-columns: 1fr; }
+      .brand-bar { flex-direction: column; align-items: flex-start; }
+      .asof { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="brand-bar">
+      <h1 class="brand">LCID <span>Wheel</span></h1>
+      <div class="asof">
+        Snapshot from your chain<br />
+        As of 09:35:01 am · Exp Jul 17, 2026
+      </div>
+    </header>
+
+    <section class="hero">
+      <p class="lede">
+        Visualize selling the Jul 17 <strong>$5.50 put</strong> for premium, then decide whether calls belong in the plan — now, or only after assignment on the wheel.
+      </p>
+      <div class="price-strip">
+        <div class="stat">
+          <label>Stock</label>
+          <strong id="stockDisplay">$5.51</strong>
+          <div class="hint">unchanged in snapshot</div>
+        </div>
+        <div class="stat">
+          <label>$5.50 Put mid</label>
+          <strong>$0.17</strong>
+          <div class="hint">bid 0.14 · ask 0.20</div>
+        </div>
+        <div class="stat">
+          <label>Cash to secure</label>
+          <strong id="cashSecure">$550</strong>
+          <div class="hint">1 contract = 100 shares</div>
+        </div>
+        <div class="stat">
+          <label>Target entry</label>
+          <strong id="effEntry">$5.33</strong>
+          <div class="hint">strike − premium</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Play the expiration path</h2>
+      <p class="sub">Pick a stance, set the premium you think you can fill, then drag Friday’s close. The payoff chart and outcome update live.</p>
+
+      <div class="strategy-tabs" role="tablist" aria-label="Strategy">
+        <button type="button" class="active" data-strategy="csp">
+          Sell CSP
+          <small>Want shares cheaper</small>
+        </button>
+        <button type="button" data-strategy="half">
+          50 shares + CSP
+          <small>Participate + premium</small>
+        </button>
+        <button type="button" data-strategy="shares">
+          Buy 100 shares
+          <small>No premium, full upside</small>
+        </button>
+        <button type="button" data-strategy="wheel">
+          Start the wheel
+          <small>Put → shares → call</small>
+        </button>
+      </div>
+
+      <div class="controls">
+        <div class="control-stack">
+          <div class="number-row">
+            <div class="field">
+              <label>Strike <span>$</span></label>
+              <input id="strike" type="number" min="1" max="20" step="0.5" value="5.50" />
+            </div>
+            <div class="field">
+              <label>Put premium <span>$</span></label>
+              <input id="premium" type="number" min="0.01" max="2" step="0.01" value="0.18" />
+            </div>
+            <div class="field">
+              <label>Contracts</label>
+              <input id="contracts" type="number" min="1" max="20" step="1" value="1" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>
+              LCID at expiration
+              <span id="expiryLabel">$5.51</span>
+            </label>
+            <input id="expiryPrice" type="range" min="3.5" max="8" step="0.01" value="5.51" />
+          </div>
+
+          <div class="field" id="callPremiumField" hidden>
+            <label>
+              Next covered-call premium (per share)
+              <span id="callPremiumLabel">$0.20</span>
+            </label>
+            <input id="callPremium" type="range" min="0.05" max="0.80" step="0.01" value="0.20" />
+          </div>
+
+          <div class="metrics" id="metrics"></div>
+          <div class="outcome" id="outcome"></div>
+        </div>
+
+        <div class="chart-box">
+          <canvas id="payoff" width="640" height="280" aria-label="Payoff chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Should you also buy or sell calls?</h2>
+      <p class="sub">Short answer for your stated goal (“buy Lucid at $5.50 and collect premium”): <strong>don’t buy calls</strong>, and <strong>don’t sell calls yet</strong> unless you already own shares.</p>
+
+      <div class="calls-grid">
+        <article class="call-card">
+          <span class="badge">Usually skip</span>
+          <h3>Buy calls</h3>
+          <p>Pays for upside, but burns premium. Conflicts with wanting a cheaper entry via a cash-secured put. Only makes sense if you are aggressively bullish <em>and</em> unwilling to own shares below $5.50.</p>
+        </article>
+        <article class="call-card">
+          <span class="badge">Not yet</span>
+          <h3>Sell naked / short calls</h3>
+          <p>Caps upside and adds undefined risk if you don’t own shares. You said you want to own LCID — selling calls before you have shares fights that goal.</p>
+        </article>
+        <article class="call-card recommended">
+          <span class="badge">Fits the plan</span>
+          <h3>Sell covered calls later</h3>
+          <p>After the put is assigned (or if you buy shares now), selling OTM covered calls is the natural next wheel step — more premium while you hold.</p>
+        </article>
+      </div>
+
+      <div class="verdict" id="callVerdict">
+        <strong>Recommendation: sell the $5.50 CSP first.</strong>
+        <p>Limit around $0.17–$0.18. Add covered calls only once you own 100 shares. Skip buying calls unless your thesis flips from “accumulate shares” to “levered upside only.”</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Wheel map · 6–12 months</h2>
+      <p class="sub">Same capital, repeating put → assignment → covered call cycles. Adjust assumed monthly premiums to see a rough premium harvest (before assignment P&amp;L).</p>
+
+      <div class="wheel-layout">
+        <div class="flow">
+          <div class="flow-step">
+            <div class="step-num">1</div>
+            <div>
+              <h4>Sell cash-secured put</h4>
+              <p>Collect premium while waiting to buy at your strike.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="step-num">2</div>
+            <div>
+              <h4>Assigned into 100 shares</h4>
+              <p>Effective cost = strike − put premiums kept.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="step-num">3</div>
+            <div>
+              <h4>Sell covered calls</h4>
+              <p>Collect more premium; shares may be called away.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="step-num">4</div>
+            <div>
+              <h4>Repeat</h4>
+              <p>If called away, go back to selling puts. If not, keep selling calls.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-stack">
+          <div class="number-row">
+            <div class="field">
+              <label>Months</label>
+              <input id="months" type="number" min="1" max="24" step="1" value="6" />
+            </div>
+            <div class="field">
+              <label>Put prem / mo</label>
+              <input id="putPerMonth" type="number" min="0.01" max="2" step="0.01" value="0.18" />
+            </div>
+            <div class="field">
+              <label>Call prem / mo</label>
+              <input id="callPerMonth" type="number" min="0.01" max="2" step="0.01" value="0.15" />
+            </div>
+          </div>
+          <div class="field">
+            <label>
+              Assumed assignment month
+              <span id="assignMonthLabel">Month 2</span>
+            </label>
+            <input id="assignMonth" type="range" min="1" max="6" step="1" value="2" />
+          </div>
+          <div class="metrics" id="wheelMetrics"></div>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top: 1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Phase</th>
+              <th>Action</th>
+              <th>Premium</th>
+              <th>Cumulative</th>
+            </tr>
+          </thead>
+          <tbody id="wheelTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="footnote">
+      Educational visualization only — not financial advice. Quotes reflect your screenshot (LCID $5.51, Jul 17 2026 $5.50 put ~0.14 / 0.20). Option assignment, early exercise, spreads, commissions, and borrow/cash requirements can change realized results.
+    </p>
+  </div>
+
+  <script>
+    const state = {
+      strategy: "csp",
+      stock: 5.51,
+    };
+
+    const els = {
+      strike: document.getElementById("strike"),
+      premium: document.getElementById("premium"),
+      contracts: document.getElementById("contracts"),
+      expiryPrice: document.getElementById("expiryPrice"),
+      expiryLabel: document.getElementById("expiryLabel"),
+      callPremium: document.getElementById("callPremium"),
+      callPremiumLabel: document.getElementById("callPremiumLabel"),
+      callPremiumField: document.getElementById("callPremiumField"),
+      metrics: document.getElementById("metrics"),
+      outcome: document.getElementById("outcome"),
+      canvas: document.getElementById("payoff"),
+      cashSecure: document.getElementById("cashSecure"),
+      effEntry: document.getElementById("effEntry"),
+      months: document.getElementById("months"),
+      putPerMonth: document.getElementById("putPerMonth"),
+      callPerMonth: document.getElementById("callPerMonth"),
+      assignMonth: document.getElementById("assignMonth"),
+      assignMonthLabel: document.getElementById("assignMonthLabel"),
+      wheelMetrics: document.getElementById("wheelMetrics"),
+      wheelTable: document.getElementById("wheelTable"),
+      callVerdict: document.getElementById("callVerdict"),
+    };
+
+    const money = (n) => {
+      const sign = n < 0 ? "-" : "";
+      return sign + "$" + Math.abs(n).toFixed(2);
+    };
+    const moneyInt = (n) => {
+      const sign = n < 0 ? "-" : "";
+      return sign + "$" + Math.abs(Math.round(n)).toLocaleString();
+    };
+    const pct = (n) => (n * 100).toFixed(1) + "%";
+
+    function inputs() {
+      const strike = Number(els.strike.value);
+      const premium = Number(els.premium.value);
+      const contracts = Math.max(1, Number(els.contracts.value) || 1);
+      const expiry = Number(els.expiryPrice.value);
+      const callPrem = Number(els.callPremium.value);
+      return { strike, premium, contracts, expiry, callPrem, shares: contracts * 100 };
+    }
+
+    function pnlAt(price, strategy) {
+      const { strike, premium, contracts, callPrem, shares } = inputs();
+      const putPremiumCash = premium * shares;
+      const assigned = price < strike;
+
+      if (strategy === "shares") {
+        return (price - state.stock) * shares;
+      }
+
+      if (strategy === "csp") {
+        if (!assigned) return putPremiumCash;
+        return putPremiumCash + (price - strike) * shares;
+      }
+
+      if (strategy === "half") {
+        // Buy 50 shares now + sell 1 CSP (100-share obligation) per contract unit
+        const stockHalf = 50 * contracts;
+        const stockSide = (price - state.stock) * stockHalf;
+        const cspSide = !assigned
+          ? premium * 100 * contracts
+          : premium * 100 * contracts + (price - strike) * 100 * contracts;
+        return stockSide + cspSide;
+      }
+
+      // wheel: CSP this week; if assigned, assume one covered-call credit already layered for illustration at expiry
+      if (!assigned) return premium * 100 * contracts;
+      const sharesPnL = (price - strike) * 100 * contracts;
+      const callCredit = callPrem * 100 * contracts;
+      // covered call sold at strike for simplicity in short-term path
+      const calledAway = price > strike;
+      if (calledAway) {
+        // shares sold at strike via call; keep put + call premium, no further upside
+        return premium * 100 * contracts + callCredit;
+      }
+      return premium * 100 * contracts + callCredit + sharesPnL;
+    }
+
+    function renderMetrics() {
+      const { strike, premium, contracts, expiry } = inputs();
+      const capital =
+        state.strategy === "half"
+          ? state.stock * 50 * contracts + strike * 100 * contracts
+          : state.strategy === "shares"
+            ? state.stock * 100 * contracts
+            : strike * 100 * contracts;
+      const premCash = premium * 100 * contracts;
+      const eff = strike - premium;
+      const weekReturn = premCash / (strike * 100 * contracts);
+      const pnl = pnlAt(expiry, state.strategy);
+
+      els.cashSecure.textContent = moneyInt(strike * 100 * contracts);
+      els.effEntry.textContent = money(eff);
+
+      const cls = pnl > 0.5 ? "good" : pnl < -0.5 ? "bad" : "warn";
+      els.metrics.innerHTML = `
+        <div class="metric"><label>Capital in play</label><strong>${moneyInt(capital)}</strong></div>
+        <div class="metric"><label>Premium in</label><strong>${moneyInt(premCash)}</strong></div>
+        <div class="metric ${cls}"><label>P&amp;L at expiry</label><strong>${moneyInt(pnl)}</strong></div>
+      `;
+
+      // Also show week return for CSP-like strategies
+      if (state.strategy !== "shares") {
+        els.metrics.insertAdjacentHTML(
+          "beforeend",
+          `<div class="metric good" style="grid-column: 1 / -1"><label>Premium / cash-secured (1 week)</label><strong>${pct(weekReturn)} · effective buy ${money(eff)}</strong></div>`
+        );
+      }
+    }
+
+    function renderOutcome() {
+      const { strike, premium, contracts, expiry, callPrem } = inputs();
+      const assigned = expiry < strike;
+      const prem = premium * 100 * contracts;
+
+      let cards = [];
+
+      if (state.strategy === "csp") {
+        if (!assigned) {
+          cards = [{
+            live: true,
+            kicker: "Scenario live",
+            title: "Put expires worthless",
+            detail: `LCID finishes at ${money(expiry)} (≥ ${money(strike)}). Keep ${moneyInt(prem)} premium. No shares purchased.`,
+          }];
+        } else {
+          const eff = strike - premium;
+          cards = [{
+            live: true,
+            kicker: "Scenario live",
+            title: "Likely assigned — you buy shares",
+            detail: `Buy ${100 * contracts} shares at ${money(strike)}. Keep premium, so effective cost ≈ ${money(eff)}. Mark-to-market vs ${money(expiry)} is included in P&L.`,
+          }];
+        }
+      } else if (state.strategy === "half") {
+        cards = [{
+          live: true,
+          kicker: "Scenario live",
+          title: assigned ? "50 shares + assigned put" : "50 shares + put premium kept",
+          detail: assigned
+            ? `You already ride 50×${contracts} shares higher/lower, and get assigned on the CSP for another ${100 * contracts} shares at effective ~${money(strike - premium)}.`
+            : `Upside from the ${50 * contracts} shares plus ${moneyInt(prem)} from the expired put. You may wish you’d bought the full lot — that’s the tradeoff.`,
+        }];
+      } else if (state.strategy === "shares") {
+        const pnl = (expiry - state.stock) * 100 * contracts;
+        cards = [{
+          live: true,
+          kicker: "Scenario live",
+          title: pnl >= 0 ? "Shares participate fully" : "Shares absorb the drop",
+          detail: `Long ${100 * contracts} @ ${money(state.stock)} → ${money(expiry)}. No premium cushion. P&L ${moneyInt(pnl)}.`,
+        }];
+      } else {
+        cards = [{
+          live: true,
+          kicker: "Scenario live",
+          title: assigned ? "Wheel shifts to covered-call phase" : "Put premium banked — wheel resets",
+          detail: assigned
+            ? `Assigned at ${money(strike)}. Illustrative covered-call credit ${money(callPrem)} adds ${moneyInt(callPrem * 100 * contracts)}. Next: sell OTM calls against the shares.`
+            : `Stock stayed above ${money(strike)}. Keep ${moneyInt(prem)} and sell another put next cycle.`,
+        }];
+      }
+
+      // static comparison strip
+      cards.push({
+        live: false,
+        kicker: "Remember",
+        title: expiry >= 5.7 ? "Rally risk for CSP sellers" : "Premium is compensation for obligation",
+        detail: expiry >= 5.7
+          ? "This is the classic CSP frustration: stock runs and you keep a small premium instead of the shares. The 50/50 hybrid reduces that regret."
+          : "Elevated premiums often mean the market expects a real move. Size only cash you are willing to convert into LCID shares.",
+      });
+
+      els.outcome.innerHTML = cards.map((c) => `
+        <article class="outcome-card ${c.live ? "live" : ""}">
+          <div class="kicker">${c.kicker}</div>
+          <div class="title">${c.title}</div>
+          <div class="detail">${c.detail}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderCallVerdict() {
+      if (state.strategy === "shares" || state.strategy === "half") {
+        els.callVerdict.innerHTML = `
+          <strong>You already own (or will own) shares — covered calls are optional income.</strong>
+          <p>Don’t buy calls on top. If you want more premium after entry, sell OTM covered calls (e.g. $6–$7) only if you’re okay capping upside.</p>
+        `;
+      } else if (state.strategy === "wheel") {
+        els.callVerdict.innerHTML = `
+          <strong>Wheel path: puts first, covered calls after assignment.</strong>
+          <p>Buying calls is usually the wrong overlay. Selling calls before you own shares is not a cash-secured wheel — wait for assignment (or buy shares), then sell calls.</p>
+        `;
+      } else {
+        els.callVerdict.innerHTML = `
+          <strong>Recommendation: sell the $5.50 CSP first.</strong>
+          <p>Limit around $0.17–$0.18. Add covered calls only once you own 100 shares. Skip buying calls unless your thesis flips from “accumulate shares” to “levered upside only.”</p>
+        `;
+      }
+    }
+
+    function drawChart() {
+      const ctx = els.canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = els.canvas.clientWidth;
+      const cssH = 280;
+      els.canvas.width = cssW * dpr;
+      els.canvas.height = cssH * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      const pad = { l: 48, r: 16, t: 18, b: 36 };
+      const w = cssW - pad.l - pad.r;
+      const h = cssH - pad.t - pad.b;
+      const minX = 3.5;
+      const maxX = 8;
+      const prices = [];
+      for (let p = minX; p <= maxX + 1e-9; p += 0.05) prices.push(+p.toFixed(2));
+
+      const series = {
+        csp: prices.map((p) => pnlAt(p, "csp")),
+        half: prices.map((p) => pnlAt(p, "half")),
+        shares: prices.map((p) => pnlAt(p, "shares")),
+        wheel: prices.map((p) => pnlAt(p, "wheel")),
+      };
+
+      const active = series[state.strategy];
+      let minY = Math.min(...active, 0);
+      let maxY = Math.max(...active, 0);
+      const padY = Math.max(20, (maxY - minY) * 0.15);
+      minY -= padY;
+      maxY += padY;
+
+      const xOf = (p) => pad.l + ((p - minX) / (maxX - minX)) * w;
+      const yOf = (v) => pad.t + ((maxY - v) / (maxY - minY)) * h;
+
+      // grid
+      ctx.strokeStyle = "rgba(18,38,58,0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.t + (h * i) / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.l, y);
+        ctx.lineTo(pad.l + w, y);
+        ctx.stroke();
+      }
+
+      // zero line
+      ctx.strokeStyle = "rgba(18,38,58,0.35)";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, yOf(0));
+      ctx.lineTo(pad.l + w, yOf(0));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // strike line
+      const { strike } = inputs();
+      ctx.strokeStyle = "rgba(15,118,110,0.55)";
+      ctx.beginPath();
+      ctx.moveTo(xOf(strike), pad.t);
+      ctx.lineTo(xOf(strike), pad.t + h);
+      ctx.stroke();
+
+      function strokeSeries(values, color, width, alpha = 1) {
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        values.forEach((v, i) => {
+          const x = xOf(prices[i]);
+          const y = yOf(v);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      // faint comparisons
+      if (state.strategy !== "shares") strokeSeries(series.shares, "#94a3b8", 1.5, 0.55);
+      if (state.strategy !== "csp") strokeSeries(series.csp, "#0f766e", 1.5, 0.35);
+      strokeSeries(active, state.strategy === "shares" ? "#d97706" : "#0f766e", 3, 1);
+
+      // marker at selected expiry
+      const { expiry } = inputs();
+      const py = pnlAt(expiry, state.strategy);
+      ctx.fillStyle = "#12263a";
+      ctx.beginPath();
+      ctx.arc(xOf(expiry), yOf(py), 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // labels
+      ctx.fillStyle = "#3d5166";
+      ctx.font = "12px IBM Plex Mono, monospace";
+      ctx.fillText(moneyInt(maxY), 8, pad.t + 4);
+      ctx.fillText(moneyInt(minY), 8, pad.t + h);
+      ctx.fillText("$3.50", xOf(3.5) - 10, cssH - 12);
+      ctx.fillText("$5.50", xOf(5.5) - 14, cssH - 12);
+      ctx.fillText("$8", xOf(8) - 8, cssH - 12);
+
+      ctx.fillStyle = "#0f766e";
+      ctx.fillText("strike", xOf(strike) + 6, pad.t + 12);
+    }
+
+    function renderWheel() {
+      const months = Math.max(1, Number(els.months.value) || 6);
+      const putPm = Number(els.putPerMonth.value);
+      const callPm = Number(els.callPerMonth.value);
+      let assignAt = Number(els.assignMonth.value);
+      els.assignMonth.max = months;
+      if (assignAt > months) {
+        assignAt = months;
+        els.assignMonth.value = months;
+      }
+      els.assignMonthLabel.textContent = "Month " + assignAt;
+
+      const contracts = Math.max(1, Number(els.contracts.value) || 1);
+      const mult = 100 * contracts;
+      let cum = 0;
+      const rows = [];
+
+      for (let m = 1; m <= months; m++) {
+        let phase, action, prem;
+        if (m < assignAt) {
+          phase = "CSP";
+          action = "Sell put";
+          prem = putPm * mult;
+        } else if (m === assignAt) {
+          phase = "Assignment";
+          action = "Put assigned → own shares";
+          prem = putPm * mult;
+        } else {
+          phase = "Covered call";
+          action = "Sell call against shares";
+          prem = callPm * mult;
+        }
+        cum += prem;
+        rows.push({ m, phase, action, prem, cum });
+      }
+
+      const putMonths = assignAt;
+      const callMonths = Math.max(0, months - assignAt);
+      const totalPrem = cum;
+      const capital = Number(els.strike.value) * mult;
+      const ann = (totalPrem / capital) * (12 / months);
+
+      els.wheelMetrics.innerHTML = `
+        <div class="metric good"><label>Total premium</label><strong>${moneyInt(totalPrem)}</strong></div>
+        <div class="metric"><label>Put months / call months</label><strong>${putMonths} / ${callMonths}</strong></div>
+        <div class="metric warn"><label>Rough ann. premium yield</label><strong>${pct(ann)}</strong></div>
+      `;
+
+      els.wheelTable.innerHTML = rows.map((r) => `
+        <tr>
+          <td class="mono">${r.m}</td>
+          <td>${r.phase}</td>
+          <td>${r.action}</td>
+          <td class="mono">${moneyInt(r.prem)}</td>
+          <td class="mono">${moneyInt(r.cum)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderAll() {
+      els.expiryLabel.textContent = money(Number(els.expiryPrice.value));
+      els.callPremiumLabel.textContent = money(Number(els.callPremium.value));
+      els.callPremiumField.hidden = state.strategy !== "wheel";
+      renderMetrics();
+      renderOutcome();
+      renderCallVerdict();
+      drawChart();
+      renderWheel();
+    }
+
+    document.querySelectorAll(".strategy-tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".strategy-tabs button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.strategy = btn.dataset.strategy;
+        renderAll();
+      });
+    });
+
+    [
+      els.strike, els.premium, els.contracts, els.expiryPrice, els.callPremium,
+      els.months, els.putPerMonth, els.callPerMonth, els.assignMonth,
+    ].forEach((el) => el.addEventListener("input", renderAll));
+
+    window.addEventListener("resize", drawChart);
+    renderAll();
+  </script>
+</body>
+</html>
