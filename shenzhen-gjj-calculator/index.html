@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>深圳公积金比例决策计算器</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">深圳 · 2025.7 – 2026.6 公积金年度</p>
+        <h1>公积金个人比例<br>节税决策计算器</h1>
+        <p class="subtitle">
+          评估是否将个人缴存比例提至 12%。单位比例不变，每年仅可调整 1 次，调高后本年内无法调低。
+        </p>
+      </div>
+      <div class="hero-badges">
+        <span class="badge">基数上限 44,265 元</span>
+        <span class="badge">贷款额度 ×16</span>
+        <span class="badge">个人 5%–12%</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel input-panel">
+        <h2>你的情况</h2>
+
+        <div class="field">
+          <label for="salary">税前月薪（元）</label>
+          <input type="number" id="salary" value="20000" min="2360" max="999999" step="100">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="currentRate">当前个人比例</label>
+            <select id="currentRate">
+              <option value="5">5%</option>
+              <option value="6">6%</option>
+              <option value="7">7%</option>
+              <option value="8">8%</option>
+              <option value="9">9%</option>
+              <option value="10">10%</option>
+              <option value="11">11%</option>
+              <option value="12">12%</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="targetRate">目标个人比例</label>
+            <select id="targetRate">
+              <option value="8">8%</option>
+              <option value="9">9%</option>
+              <option value="10">10%</option>
+              <option value="11">11%</option>
+              <option value="12" selected>12%</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="employerRate">单位缴存比例（不变）</label>
+          <select id="employerRate">
+            <option value="5" selected>5%</option>
+            <option value="6">6%</option>
+            <option value="7">7%</option>
+            <option value="8">8%</option>
+            <option value="9">9%</option>
+            <option value="10">10%</option>
+            <option value="11">11%</option>
+            <option value="12">12%</option>
+          </select>
+        </div>
+
+        <fieldset class="deductions">
+          <legend>专项附加扣除（每月）</legend>
+          <label class="check-item">
+            <input type="checkbox" data-amount="1500" id="deductRent">
+            <span>住房租金</span>
+            <em>1,500</em>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" data-amount="1000" id="deductMortgage" checked>
+            <span>住房贷款利息</span>
+            <em>1,000</em>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" data-amount="1000" id="deductChild">
+            <span>子女教育</span>
+            <em>1,000/孩</em>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" data-amount="3000" id="deductElderly" checked>
+            <span>赡养老人（独生子女）</span>
+            <em>3,000</em>
+          </label>
+          <label class="check-item">
+            <input type="checkbox" data-amount="2000" id="deductBaby">
+            <span>3岁以下婴幼儿照护</span>
+            <em>2,000/孩</em>
+          </label>
+          <div class="field inline-field">
+            <label for="customDeduction">其他扣除（元/月）</label>
+            <input type="number" id="customDeduction" value="0" min="0" step="100">
+          </div>
+        </fieldset>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="homePlan">购房计划</label>
+            <select id="homePlan">
+              <option value="none">暂无计划</option>
+              <option value="1-3" selected>1–3 年内购房</option>
+              <option value="3+">3 年以上</option>
+              <option value="repay">已有公积金贷款（冲还贷）</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cashTolerance">可接受月到手减少（元）</label>
+            <input type="number" id="cashTolerance" value="1500" min="0" step="100">
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" id="calculateBtn">开始计算</button>
+      </section>
+
+      <section class="panel results-panel" id="resultsPanel">
+        <div class="recommendation" id="recommendation">
+          <div class="rec-icon" id="recIcon">—</div>
+          <div>
+            <p class="rec-label">综合建议</p>
+            <h3 id="recTitle">填写信息后点击计算</h3>
+            <p id="recDetail" class="rec-detail">输入你的收入、比例和购房计划，获取个性化建议。</p>
+          </div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid">
+          <div class="metric">
+            <span class="metric-label">月多缴公积金</span>
+            <span class="metric-value" id="metricDelta">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">边际税率</span>
+            <span class="metric-value" id="metricRate">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">月节税</span>
+            <span class="metric-value positive" id="metricTaxSave">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">月到手净减少</span>
+            <span class="metric-value negative" id="metricCashCost">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">年节税合计</span>
+            <span class="metric-value positive" id="metricAnnualTax">—</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">1 年贷款额度提升</span>
+            <span class="metric-value" id="metricLoan1y">—</span>
+          </div>
+        </div>
+
+        <div class="comparison-card">
+          <h3>调整前后对比</h3>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>项目</th>
+                <th>调整前</th>
+                <th>调整后</th>
+                <th>变化</th>
+              </tr>
+            </thead>
+            <tbody id="compareBody"></tbody>
+          </table>
+        </div>
+
+        <div class="comparison-card">
+          <h3>不同目标比例对比</h3>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>目标比例</th>
+                <th>月多缴</th>
+                <th>月节税</th>
+                <th>月到手少</th>
+                <th>1年贷款+</th>
+                <th>建议</th>
+              </tr>
+            </thead>
+            <tbody id="scenarioBody"></tbody>
+          </table>
+        </div>
+
+        <div class="notes">
+          <h3>说明</h3>
+          <ul>
+            <li>社保个人部分按深圳 2025 年标准估算（养老 8%、医疗一档 2%、失业 0.2%）。</li>
+            <li>个税采用综合所得累计预扣预缴法，假设全年收入稳定。</li>
+            <li>贷款额度 = 账户余额 × 16，另有 60 万/110 万等上限，实际以审批为准。</li>
+            <li>本工具仅供参考，不构成税务或财务建议。</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>深圳公积金个人比例决策计算器 · 公积金年度 2025.7.1 – 2026.6.30</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
