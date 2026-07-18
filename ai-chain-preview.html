@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 产业链信息图 · 预览</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0a1628;
+      color: #fff;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .toolbar a {
+      background: #f5c518;
+      color: #0a1628;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+    .toolbar span { color: #b4bed2; font-size: 14px; }
+    .slide {
+      background: linear-gradient(180deg, #12233c 0%, #0a1628 100%);
+      border: 1px solid #1e3a5f;
+      border-radius: 12px;
+      padding: 28px 32px 24px;
+      max-width: 1280px;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    .subtitle { color: #b4bed2; font-size: 16px; margin-bottom: 28px; }
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .col {
+      background: #0e1c32;
+      border: 1px solid #1e3a5f;
+      border-radius: 10px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+    .col h2 { font-size: 18px; margin-bottom: 8px; color: #fff; }
+    .col p { font-size: 12px; color: #b4bed2; line-height: 1.5; min-height: 54px; }
+    .icon {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: #3b82f6; display: flex; align-items: center; justify-content: center;
+      margin: 14px auto; font-size: 20px; font-weight: 700;
+    }
+    .placeholder {
+      background: #162844; border: 1px dashed #2d4b78;
+      border-radius: 8px; height: 72px; display: flex; align-items: center; justify-content: center;
+      color: #6482aa; font-size: 11px; margin-top: 10px;
+    }
+    .footer {
+      background: #12233c;
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer .msg { font-size: 15px; }
+    .footer .msg em { color: #f5c518; font-style: normal; font-weight: 700; }
+    .metrics { display: flex; gap: 20px; flex-wrap: wrap; }
+    .metric { text-align: center; font-size: 11px; color: #b4bed2; }
+    .metric .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #3b82f6; margin: 0 auto 6px;
+    }
+    .ref { margin-top: 24px; max-width: 1280px; }
+    .ref img { width: 100%; border-radius: 12px; border: 1px solid #1e3a5f; }
+    .ref h3 { margin-bottom: 10px; color: #b4bed2; font-size: 14px; font-weight: 400; }
+    @media (max-width: 900px) { .columns { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .columns { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a href="AI-industry-chain-editable.pptx" download>⬇ 下载可编辑 PPT</a>
+    <span>第 1 页可编辑 · 第 2 页为参考图 · 用 PowerPoint / WPS 打开</span>
+  </div>
+
+  <div class="slide">
+    <h1>做 AI 投资？最大的差异不是模型，而是产业链。</h1>
+    <p class="subtitle">五层结构，一条链条，价值从芯片流向应用。</p>
+
+    <div class="columns">
+      <div class="col">
+        <h2>算力层</h2>
+        <p>生于硅片，GPU 与 HBM 驱动一切。</p>
+        <div class="icon">芯</div>
+        <div class="placeholder">可替换图片</div>
+      </div>
+      <div class="col">
+        <h2>基础设施层</h2>
+        <p>电力、液冷与万卡集群规模化。</p>
+        <div class="icon">云</div>
+        <div class="placeholder">可替换图片</div>
+      </div>
+      <div class="col">
+        <h2>模型层</h2>
+        <p>数据训练，算力炼成认知能力。</p>
+        <div class="icon">脑</div>
+        <div class="placeholder">可替换图片</div>
+      </div>
+      <div class="col">
+        <h2>智能体层</h2>
+        <p>工具编排，自主规划与闭环执行。</p>
+        <div class="icon">链</div>
+        <div class="placeholder">可替换图片</div>
+      </div>
+      <div class="col">
+        <h2>应用层</h2>
+        <p>落地千行百业，嵌入日常工作。</p>
+        <div class="icon">用</div>
+        <div class="placeholder">可替换图片</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="msg">同一技术，不同层级。<em>看懂产业链，才能抓住价值。</em></div>
+      <div class="metrics">
+        <div class="metric"><div class="dot"></div>资本开支</div>
+        <div class="metric"><div class="dot"></div>推理延迟</div>
+        <div class="metric"><div class="dot"></div>单位经济</div>
+        <div class="metric"><div class="dot"></div>产品契合</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ref">
+    <h3>第 2 页参考图（PPT 内已嵌入）</h3>
+    <img src="ai-chain-reference.png" alt="AI 产业链参考图" />
+  </div>
+</body>
+</html>
