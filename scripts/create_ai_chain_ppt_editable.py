@@ -2,20 +2,21 @@
 """
 Assemble editable 16:9 AI industry-chain PPT from discrete assets.
 
-Layer order (bottom → top):
-  background → header bar → title/subtitle text →
-  5 column cards → per column: title, tagline, icon image, hero image →
-  footer bar → slogan text → metric icons + labels
+Icons:
+  - Column: filled blue circle SHAPE + white-line icon PNG on top (grouped)
+  - Metrics: white-line icon PNG + hollow blue circle outline (grouped)
 """
 
 from pathlib import Path
 import shutil
 
+from lxml import etree
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_AUTO_SHAPE_TYPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.util import Inches, Pt
+from pptx.oxml.ns import qn
+from pptx.util import Emu, Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
 PARTS = ROOT / "assets" / "ppt-parts"
@@ -28,48 +29,50 @@ NAVY_CARD = RGBColor(14, 28, 50)
 NAVY_BAR = RGBColor(18, 35, 60)
 GOLD = RGBColor(245, 197, 24)
 WHITE = RGBColor(255, 255, 255)
+BLUE = RGBColor(59, 130, 246)
 GRAY = RGBColor(180, 190, 210)
 CARD_LINE = RGBColor(30, 55, 90)
 FONT = "Microsoft YaHei"
 
+# White-line-only PNGs (transparent bg)
 COLUMNS = [
     {
         "title": "算力层",
         "tagline": "生于硅片，GPU 与 HBM\n驱动一切。",
-        "icon": PARTS / "icons" / "01-compute.png",
+        "icon": PARTS / "icons-white" / "01-compute.png",
         "hero": PARTS / "heroes" / "01-compute.png",
     },
     {
         "title": "基础设施层",
         "tagline": "电力、液冷与万卡\n集群规模化。",
-        "icon": PARTS / "icons" / "02-infra.png",
+        "icon": PARTS / "icons-white" / "02-infra.png",
         "hero": PARTS / "heroes" / "02-infra.png",
     },
     {
         "title": "模型层",
         "tagline": "数据训练，算力炼成\n认知能力。",
-        "icon": PARTS / "icons" / "03-model.png",
+        "icon": PARTS / "icons-white" / "03-model.png",
         "hero": PARTS / "heroes" / "03-model.png",
     },
     {
         "title": "智能体层",
         "tagline": "工具编排，自主规划\n与闭环执行。",
-        "icon": PARTS / "icons" / "04-agent.png",
+        "icon": PARTS / "icons-white" / "04-agent.png",
         "hero": PARTS / "heroes" / "04-agent.png",
     },
     {
         "title": "应用层",
         "tagline": "落地千行百业，\n嵌入日常工作。",
-        "icon": PARTS / "icons" / "05-app.png",
+        "icon": PARTS / "icons-white" / "05-app.png",
         "hero": PARTS / "heroes" / "05-app.png",
     },
 ]
 
 METRICS = [
-    {"label": "资本开支", "icon": PARTS / "metrics" / "01-capex.png"},
-    {"label": "推理延迟", "icon": PARTS / "metrics" / "02-latency.png"},
-    {"label": "单位经济", "icon": PARTS / "metrics" / "03-unit.png"},
-    {"label": "产品契合", "icon": PARTS / "metrics" / "04-pmf.png"},
+    {"label": "资本开支", "icon": PARTS / "metrics-white" / "01-capex.png"},
+    {"label": "推理延迟", "icon": PARTS / "metrics-white" / "02-latency.png"},
+    {"label": "单位经济", "icon": PARTS / "metrics-white" / "03-unit.png"},
+    {"label": "产品契合", "icon": PARTS / "metrics-white" / "04-pmf.png"},
 ]
 
 
@@ -77,6 +80,57 @@ def set_fill(shape, color):
     fill = shape.fill
     fill.solid()
     fill.fore_color.rgb = color
+
+
+def group_shapes(slide, shapes_to_group):
+    """Group shapes into one selectable group (OOXML)."""
+    if len(shapes_to_group) < 2:
+        return shapes_to_group[0] if shapes_to_group else None
+
+    spTree = slide.shapes._spTree
+    shape_els = [s._element for s in shapes_to_group]
+
+    left = min(s.left for s in shapes_to_group)
+    top = min(s.top for s in shapes_to_group)
+    right = max(s.left + s.width for s in shapes_to_group)
+    bottom = max(s.top + s.height for s in shapes_to_group)
+    width = right - left
+    height = bottom - top
+
+    nsmap = {
+        "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
+        "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
+        "r": "http://schemas.openxmlformats.org/officeDocument/2006/relationships",
+    }
+    grpSp = etree.SubElement(spTree, qn("p:grpSp"))
+    nvGrpSpPr = etree.SubElement(grpSp, qn("p:nvGrpSpPr"))
+    cNvPr = etree.SubElement(nvGrpSpPr, qn("p:cNvPr"))
+    # unique-ish id
+    max_id = max((int(el.get("id", "0")) for el in spTree.xpath(".//*[@id]")), default=1)
+    cNvPr.set("id", str(max_id + 1))
+    cNvPr.set("name", "IconGroup")
+    etree.SubElement(nvGrpSpPr, qn("p:cNvGrpSpPr"))
+    etree.SubElement(nvGrpSpPr, qn("p:nvPr"))
+
+    grpSpPr = etree.SubElement(grpSp, qn("p:grpSpPr"))
+    xfrm = etree.SubElement(grpSpPr, qn("a:xfrm"))
+    off = etree.SubElement(xfrm, qn("a:off"))
+    off.set("x", str(int(left)))
+    off.set("y", str(int(top)))
+    ext = etree.SubElement(xfrm, qn("a:ext"))
+    ext.set("cx", str(int(width)))
+    ext.set("cy", str(int(height)))
+    chOff = etree.SubElement(xfrm, qn("a:chOff"))
+    chOff.set("x", str(int(left)))
+    chOff.set("y", str(int(top)))
+    chExt = etree.SubElement(xfrm, qn("a:chExt"))
+    chExt.set("cx", str(int(width)))
+    chExt.set("cy", str(int(height)))
+
+    for el in shape_els:
+        grpSp.append(el)
+
+    return grpSp
 
 
 def add_textbox(
@@ -207,13 +261,24 @@ def build_editable_slide(prs):
             align=PP_ALIGN.CENTER,
         )
 
-        # Icon image (replaceable)
-        icon_size = Inches(0.72)
-        icon_left = left + (col_w - icon_size) / 2
-        icon_top = col_top + Inches(1.3)
-        slide.shapes.add_picture(
+        # Column icon = filled blue circle SHAPE + white-line PNG on top (grouped)
+        # Preview-2 style
+        circle_size = Inches(0.78)
+        circle_left = left + (col_w - circle_size) / 2
+        circle_top = col_top + Inches(1.28)
+        blue_circle = slide.shapes.add_shape(
+            MSO_AUTO_SHAPE_TYPE.OVAL, circle_left, circle_top, circle_size, circle_size
+        )
+        set_fill(blue_circle, BLUE)
+        blue_circle.line.fill.background()
+
+        icon_size = Inches(0.52)
+        icon_left = circle_left + (circle_size - icon_size) / 2
+        icon_top = circle_top + (circle_size - icon_size) / 2
+        white_icon = slide.shapes.add_picture(
             str(col["icon"]), icon_left, icon_top, width=icon_size, height=icon_size
         )
+        group_shapes(slide, [blue_circle, white_icon])
 
         # Hero image (replaceable)
         hero_left = left + Inches(0.12)
@@ -252,19 +317,37 @@ def build_editable_slide(prs):
     r2.font.bold = True
     r2.font.color.rgb = GOLD
 
-    # Metric icons + labels
+    # Metric icons = white-line PNG (preview-3) + hollow blue circle outline (grouped)
     metric_start = Inches(7.6)
     metric_w = Inches(1.3)
     metric_gap = Inches(0.15)
-    icon_sz = Inches(0.4)
+    ring_sz = Inches(0.46)
+    icon_sz = Inches(0.32)
     for j, m in enumerate(METRICS):
         x = metric_start + j * (metric_w + metric_gap)
-        y = footer_top + Inches(0.12)
-        slide.shapes.add_picture(str(m["icon"]), x + Inches(0.4), y, width=icon_sz, height=icon_sz)
+        y = footer_top + Inches(0.10)
+        ring_left = x + (metric_w - ring_sz) / 2
+        ring_top = y
+
+        # Hollow circle stroke (empty fill)
+        ring = slide.shapes.add_shape(
+            MSO_AUTO_SHAPE_TYPE.OVAL, ring_left, ring_top, ring_sz, ring_sz
+        )
+        ring.fill.background()
+        ring.line.color.rgb = BLUE
+        ring.line.width = Pt(1.75)
+
+        icon_left = ring_left + (ring_sz - icon_sz) / 2
+        icon_top = ring_top + (ring_sz - icon_sz) / 2
+        white_icon = slide.shapes.add_picture(
+            str(m["icon"]), icon_left, icon_top, width=icon_sz, height=icon_sz
+        )
+        group_shapes(slide, [ring, white_icon])
+
         add_textbox(
             slide,
             x,
-            y + Inches(0.45),
+            y + Inches(0.48),
             metric_w,
             Inches(0.35),
             m["label"],
@@ -300,7 +383,8 @@ def main():
     print(f"Saved: {out_root} ({out_root.stat().st_size} bytes)")
     print(f"  16:9 ratio = {check.slide_width / check.slide_height:.4f}")
     print(f"  shapes={shapes}, pictures={pics}, text_boxes={texts}")
-    print(f"  Expected pictures: 5 icons + 5 heroes + 4 metrics = 14")
+    print("  Column icons: filled blue circle + white PNG (grouped)")
+    print("  Metric icons: white PNG + hollow blue ring (grouped)")
 
 
 if __name__ == "__main__":
