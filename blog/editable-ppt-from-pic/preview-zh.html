@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>从好看的图到可编辑 PPT</title>
+  <style>
+    body {
+      margin: 0; font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC",
+        "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #efe8dc 0%, #f7f3eb 40%, #f7f3eb 100%);
+      color: #1c1917; line-height: 1.75;
+    }
+    .banner {
+      font-size: .85rem; background: #1c1917; color: #fafaf9;
+      padding: 10px 16px; text-align: center;
+    }
+    .banner a { color: #fdba74; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 { font-size: 1.85rem; line-height: 1.25; }
+    h2 { margin-top: 2em; font-size: 1.3rem; }
+    img { max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; }
+    table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .95rem; background: #fff; }
+    th, td { border: 1px solid #d6d3d1; padding: .55em .7em; text-align: left; vertical-align: top; }
+    th { background: #e7e5e4; }
+    blockquote {
+      margin: 1.2em 0; padding: .6em 1em; border-left: 4px solid #c2410c; background: #fff7ed;
+    }
+    code { background: #e7e5e4; padding: .1em .35em; border-radius: 4px; }
+    pre { background: #1c1917; color: #f5f5f4; padding: 1em; border-radius: 8px; overflow-x: auto; }
+    pre code { background: transparent; }
+    hr { border: none; border-top: 1px solid #d6d3d1; margin: 2.5em 0; }
+</style>
+</head>
+<body>
+  <div class="banner">预览 · 从「好看的图」到「可编辑 PPT」 · <a href="preview-public.html">English</a></div>
+  <article class="wrap">
+<h1>从「好看的图」到「可编辑 PPT」：怎样让 Agent 真正帮你把事做完</h1>
+<p><em>一篇实战笔记：不是靠玄学出片，而是教会 Agent 正确的工作流——把信息图拆开，再组装成真正能改的 PowerPoint。</em></p>
+<hr />
+<p>你让 AI 做一页 slide。 它交出来，挺好看。</p>
+<p>然后你想改一个字……发现自己面对的是一张 <strong>扁平大图</strong>。</p>
+<p>这就是分岔口。</p>
+<p>这篇文章讲的是另一条路：用 Agent 把那张图 <strong>重建</strong> 成 <strong>分层、可编辑的 <code>.pptx</code></strong>——字能改、圆能换色、图标能替换。重点不是「AI 会做 slide」，而是：<strong>如果你给它对的心智模型，AI 才能帮你把事做完。</strong></p>
+<hr />
+<h2>陷阱：把整张图贴进 PPT</h2>
+<p>最快的交付，往往最没用：</p>
+<blockquote><p>生成一张漂亮信息图 → 整页贴进幻灯片 → 交差。</p></blockquote>
+<p>聊天里大家会夸。开会时有人说「第三列标题能改一下吗？」——你就傻了。</p>
+<img src="images/01-target-infographic.png" alt="目标信息图示例" width="100%" />
+<p><em>看起来做完了。其实改不了。</em></p>
+<hr />
+<h2>打通一切的心智模型</h2>
+<p><strong>信息图是像素；可编辑 PPT 是对象栈。</strong></p>
+<img src="images/00-flat-vs-layered-zh.png" alt="扁平图 vs 分层对象" width="100%" />
+<table>
+<tr><th>你看到的</th><th>PPT 里应该是</th></tr>
+<tr><td>标题 / 说明 / 脚注</td><td>文本框</td></tr>
+<tr><td>卡片、色条、色圆</td><td>原生形状</td></tr>
+<tr><td>照片 / 插画</td><td>独立图片</td></tr>
+<tr><td>图标笔画</td><td>透明底 glyph PNG</td></tr>
+<tr><td>图标圆形底</td><td>圆形 shape（实心或描边），与 glyph 组合</td></tr>
+</table>
+<p>一旦你和 Agent 共享这个模型，工作就从「再美一点」变成 <strong>「拆分 → 确认 → 组装」</strong>。</p>
+<p>这也是停止「为了一个烂图标，整页反复重生」的关键。</p>
+<hr />
+<h2>第 1 步——先锁定任务（还没开始生成之前）</h2>
+<p>先告诉 Agent「什么叫做完」：</p>
+<p>- 比例（通常 <strong>16:9</strong>） - 哪些必须可编辑（文案？颜色？图标？） - 图标样式（实心圆 / 空心描边） - 语言与语气</p>
+<p><strong>好用的提示形状：</strong></p>
+<blockquote><p>我要的是 <strong>可编辑</strong> 的 16:9 PPT，不是一张扁平图。  </p></blockquote>
+<blockquote><p>请把这张信息图拆成：文本框 + 形状 + 分栏主视觉图 + 透明图标笔画，并叠在 PPT 圆形上。  </p></blockquote>
+<blockquote><p><strong>先预览图标，再组装整页。</strong></p></blockquote>
+<p>你不是在点一张图，你是在雇一个制作搭档。</p>
+<hr />
+<h2>第 2 步——把视觉拆成零件</h2>
+<p>让 Agent <strong>按栏拆素材</strong>，而不是再生成一张超级大图。</p>
+<p>例如各列主视觉：</p>
+<p>
+<img src="images/02a-panel-compute.png" alt="算力栏主视觉" width="32%" />
+<img src="images/02b-panel-infra.png" alt="基础设施栏主视觉" width="32%" />
+<img src="images/02c-panel-model.png" alt="模型栏主视觉" width="32%" />
+</p>
+<p><em>每一张之后都是可单独替换的图片对象。</em></p>
+<p>图标同理：<strong>笔画（glyph）</strong> 和 <strong>圆</strong> 是两样东西。</p>
+<hr />
+<h2>第 3 步——别太早相信「透明图标」</h2>
+<p>AI 出图很爱把这些烤进文件：</p>
+<p>- 深蓝方底 - 或「棋盘格假透明」（其实还是不透明像素）</p>
+<img src="images/03a-icon-baked.png" alt="带底色的烤制图标" width="240" />
+<p><em>看起来像图标。其实是合成死图。</em></p>
+<p>哪怕清理过一轮，放到浅色底上仍可能露馅：</p>
+<img src="images/03b-icons-still-dirty.png" alt="浅色底上仍显脏的图标" width="100%" />
+<p><em>看起来嵌进去，贴到 slide 上也会嵌进去。</em></p>
+<p>很多 Agent 跑飞就飞在这里：不停重生整份 PPT，却不去修 <strong>素材本身</strong>。</p>
+<hr />
+<h2>第 4 步——只留白色笔画（glyph）</h2>
+<p>干净做法：</p>
+<p>1. 只提取 <strong>白色笔画</strong> → 真透明 PNG 2. 蓝圆交给 PowerPoint，用 <strong>形状</strong> 做</p>
+<img src="images/04-white-glyphs-only.png" alt="仅白色笔画图标" width="100%" />
+<p><em>这才是放进 PPT 的图片。</em></p>
+<p>再用浅色底验证透明：</p>
+<img src="images/06-glyphs-on-light-bg.png" alt="浅色底验证透明" width="100%" />
+<p><em>没有方块。没有棋盘格。只有笔画。</em></p>
+<hr />
+<h2>第 5 步——组装整页之前，先预览图标配方</h2>
+<p>按 PPT 最终用法做 mock：</p>
+<p>- <strong>列图标：</strong> 实心蓝圆 shape + 白色笔画叠上 - <strong>页脚指标：</strong> 白色笔画 + 空心描边圆</p>
+<img src="images/05-glyphs-on-shape-circles.png" alt="笔画叠在圆形形状上" width="100%" />
+<p><strong>强制门禁：</strong> 先给自己（或同事）看，说一句「OK」，再让 Agent 生成 <code>.pptx</code>。</p>
+<p>这一步能省掉大量「看着不对 → 全部重来」。</p>
+<hr />
+<h2>第 6 步——用原生 PPT 图层组装</h2>
+<p>让 Agent 用 <code>python-pptx</code> 之类工具搭：</p>
+<p>1. 背景 shape 2. 顶栏 / 卡片 / 底栏（形状） 3. 标题与正文（文本框） 4. 图标组合 = 圆形 shape + glyph PNG 5. 分栏主视觉图</p>
+<p>图标两种常见配方：</p>
+<p>- <strong>实心风：</strong> 椭圆（实心填充）→ 笔画居中 → <strong>组合</strong> - <strong>描边风：</strong> 笔画 → 椭圆（无填充，仅描边）→ <strong>组合</strong></p>
+<p>结果：在 PowerPoint / WPS 里，点标题就能改字；取消组合就能改圆颜色；换一张栏图不影响其他元素。</p>
+<p>这才叫把事做完。</p>
+<hr />
+<h2>怎样让 Agent 帮你，而不是空转</h2>
+<h3>要做</h3>
+<p>- 一上来就说清对象模型（「文字 / 形状 / 笔画 / 分栏图」） - 整页组装前，先要 <strong>图标预览</strong> - 先修素材，再重组（不要为一个图标重造宇宙） - 在 Cloud / 手机上要可下载链接（别给 <code>127.0.0.1</code>） - 把方法沉淀成可复用 skill，下次更顺</p>
+<h3>别做</h3>
+<p>- 把「整图贴进 slide」当成可编辑交付 - 让脏底图标混进终稿 - 把可改色的圆烤进图标 PNG - 组装完了再改图标风格，却不回预览门禁</p>
+<h3>好用提示词</h3>
+<p><strong>开场：</strong></p>
+<blockquote><p>把这张信息图变成可编辑的 16:9 PPT。拆成文本框、形状、分栏图、透明笔画图标。先预览图标。</p></blockquote>
+<p><strong>图标很脏时：</strong></p>
+<blockquote><p>只保留白色笔画为透明 PNG。圆用 PPT 形状。重组前先给我「仅笔画」和「笔画+圆」预览。</p></blockquote>
+<p><strong>它又交扁平图时：</strong></p>
+<blockquote><p>这不可编辑。按「拆分 → 确认 → 组装」重建成分层对象。</p></blockquote>
+<hr />
+<h2>这和「Harness」有什么关系</h2>
+<p>碰运气成功一次，不叫系统。</p>
+<p>一份 <strong>skill / 作战手册</strong>——「信息图 → 可编辑 PPT」——才是让下一次 Agent 少发疯的小 harness：</p>
+<p>- 目标清楚 - 验收清楚 - 已知翻车点清楚 - 有一道门禁（图标预览）挡住空转</p>
+<p>英雄不是 Agent。 <strong>你 + 一套好 harness</strong> 才是。</p>
+<hr />
+<h2>收尾</h2>
+<p>好看图容易。 可编辑 slide 是制作问题。</p>
+<p>想让 Agent 帮你收尾：</p>
+<p>1. 强制对象模型 2. 把图拆成零件 3. 把笔画清到「无聊的透明」 4. 确认图标 5. 分层组装 6. 把方法留下来</p>
+<p>这样你才从「挺好看的图」走到「会上真能改的 PPT」。</p>
+<hr />
+<h3>本目录配图</h3>
+<table>
+<tr><th>文件</th><th>说明</th></tr>
+<tr><td><code>images/00-flat-vs-layered-zh.png</code></td><td>心智模型（中文）</td></tr>
+<tr><td><code>images/01-target-infographic.png</code></td><td>起点视觉</td></tr>
+<tr><td><code>images/02a–c-panel-*.png</code></td><td>拆开的分栏图</td></tr>
+<tr><td><code>images/03a–b-*.png</code></td><td>脏 / 烤制图标</td></tr>
+<tr><td><code>images/04–06-*.png</code></td><td>干净笔画与组合预览</td></tr>
+</table>
+<h3>相关 skill</h3>
+<p>流程沉淀为 <strong>Editable PPT</strong>（<code>bestpractice_editable_ppt.md</code>），放在 content-infra / skills。</p>
+  </article>
+</body>
+</html>
