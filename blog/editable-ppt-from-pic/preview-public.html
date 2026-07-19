@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>From Pretty Picture to Editable PPT</title>
+  <style>
+    body {
+      margin: 0; font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      background: linear-gradient(180deg, #efe8dc 0%, #f7f3eb 40%, #f7f3eb 100%);
+      color: #1c1917; line-height: 1.65;
+    }
+    .banner {
+      font-family: ui-sans-serif, system-ui, sans-serif; font-size: .85rem;
+      background: #1c1917; color: #fafaf9; padding: 10px 16px; text-align: center;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 { font-size: 2rem; line-height: 1.2; }
+    h2 { margin-top: 2em; font-size: 1.35rem; }
+    img { max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; }
+    table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .95rem; background: #fff; }
+    th, td { border: 1px solid #d6d3d1; padding: .55em .7em; text-align: left; vertical-align: top; }
+    th { background: #e7e5e4; }
+    blockquote {
+      margin: 1.2em 0; padding: .6em 1em; border-left: 4px solid #c2410c;
+      background: #fff7ed;
+    }
+    code { background: #e7e5e4; padding: .1em .35em; border-radius: 4px; }
+    pre { background: #1c1917; color: #f5f5f4; padding: 1em; border-radius: 8px; overflow-x: auto; }
+    pre code { background: transparent; }
+    hr { border: none; border-top: 1px solid #d6d3d1; margin: 2.5em 0; }
+  </style>
+</head>
+<body>
+  <div class="banner">Preview · From Pretty Picture to Editable PPT</div>
+  <article class="wrap">
+<h1>From Pretty Picture to Editable PPT: How an Agent Actually Helps You Finish the Job</h1>
+<p><em>A field note on turning an infographic into a real PowerPoint — not by magic, but by teaching the agent the right workflow.</em></p>
+<hr />
+<p>You ask an AI for a slide. It gives you something that looks great.</p>
+<p>Then you try to change one word… and realize you’re staring at a <strong>flat image</strong>.</p>
+<p>That’s the fork in the road.</p>
+<p>This post is about the other path: using an agent to take that picture and rebuild it into a <strong>layered, editable <code>.pptx</code></strong> — text you can type into, circles you can recolor, icons you can swap. The point isn’t “AI can make slides.” The point is <strong>AI can help you get the job done</strong> if you steer it with the right mental model.</p>
+<hr />
+<h2>The trap: “just put the image into PowerPoint”</h2>
+<p>The fastest deliverable is also the least useful:</p>
+<blockquote><p>Generate a beautiful infographic → paste it full-bleed into a slide → ship.</p></blockquote>
+<p>You get applause in the chat. You get pain in the meeting when someone says: <em>“Can we change the third column title?”</em></p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/01-target-infographic.png" alt="Target Chinese AI industry chain infographic" width="100%" />
+<p><em>Looks done. Isn’t editable.</em></p>
+<hr />
+<h2>The mental model that unblocks everything</h2>
+<p><strong>An infographic is pixels. An editable PPT is an object stack.</strong></p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/00-flat-vs-layered.png" alt="Flat PNG vs layered PPT objects" width="100%" />
+<table>
+<tr><th>What you see</th><th>What it should become in PPT</th></tr>
+<tr><td>Title / labels / footnotes</td><td>Text boxes</td></tr>
+<tr><td>Cards, bars, colored circles</td><td>Native shapes</td></tr>
+<tr><td>Photos / illustrations</td><td>Separate pictures</td></tr>
+<tr><td>Icon drawings</td><td>Transparent glyph PNGs</td></tr>
+<tr><td>Icon circular backing</td><td>Shape circles (filled or outline), grouped with the glyph</td></tr>
+</table>
+<p>Once you and the agent share this model, the work stops being “make it prettier” and becomes “<strong>split → approve → assemble</strong>.”</p>
+<p>That’s also how you stop the endless loop of regenerating the whole slide for one bad icon.</p>
+<hr />
+<h2>Step 1 — Lock the job (before generating anything)</h2>
+<p>Tell the agent what “done” means:</p>
+<p>- Aspect ratio (usually <strong>16:9</strong>) - What must stay editable (copy? colors? icons?) - Icon style preference (filled circle vs outline ring) - Language / tone</p>
+<p><strong>Good prompt shape:</strong></p>
+<blockquote><p>I need an <strong>editable</strong> 16:9 PPT, not a flat image.  </p></blockquote>
+<blockquote><p>Rebuild this infographic as: text boxes + shapes + separate panel images + transparent icon glyphs on PPT circles.  </p></blockquote>
+<blockquote><p>Preview icons before assembling the full deck.</p></blockquote>
+<p>You’re not asking for a picture. You’re hiring a production partner.</p>
+<hr />
+<h2>Step 2 — Split the visual into parts</h2>
+<p>Have the agent extract or generate <strong>one asset per panel</strong>, not one mega-image.</p>
+<p>Example panels from our AI industry-chain slide:</p>
+<p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/02a-panel-compute.png" alt="Compute panel" width="32%" />
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/02b-panel-infra.png" alt="Infrastructure panel" width="32%" />
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/02c-panel-model.png" alt="Model panel" width="32%" />
+</p>
+<p><em>Each column photo is a replaceable picture object later.</em></p>
+<p>Same idea for icons: treat <strong>glyph</strong> and <strong>circle</strong> as two different things.</p>
+<hr />
+<h2>Step 3 — Don’t trust “transparent” icons too early</h2>
+<p>AI image tools love to bake in:</p>
+<p>- dark square backgrounds - or a fake “checkerboard transparency” that is still opaque pixels</p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/03a-icon-baked.png" alt="Icon with baked circular fill and square background" width="240" />
+<p><em>Looks like an icon. Still a baked composite.</em></p>
+<p>Even after a first cleanup pass, light-background checks expose leftover junk:</p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/03b-icons-still-dirty.png" alt="Icons on light background still showing baked fills" width="100%" />
+<p><em>If it looks embedded, it will feel embedded in the slide.</em></p>
+<p>This is where many agent runs fail: they keep regenerating the whole PPT instead of fixing the <strong>asset</strong>.</p>
+<hr />
+<h2>Step 4 — Keep only the white lines (the glyph)</h2>
+<p>The clean fix:</p>
+<p>1. Extract <strong>white strokes only</strong> → true transparent PNG 2. Leave the blue circle to PowerPoint as a <strong>shape</strong></p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/04-white-glyphs-only.png" alt="White glyph icons only on dark background" width="100%" />
+<p><em>This is what goes into the PPT as a picture.</em></p>
+<p>Prove transparency on a light background:</p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/06-glyphs-on-light-bg.png" alt="White glyphs on light background proving transparency" width="100%" />
+<p><em>No square. No checkerboard. Just the drawing.</em></p>
+<hr />
+<h2>Step 5 — Preview the final icon recipe <em>before</em> assembling the deck</h2>
+<p>Mock the composition the PPT will use:</p>
+<p>- <strong>Column icons:</strong> filled blue circle shape + white glyph on top - <strong>Footer metrics:</strong> white glyph + hollow ring outline</p>
+<img src="https://raw.githubusercontent.com/Junweiw/blog_code/cursor/ai-chain-editable-ppt-c7dc/blog/editable-ppt-from-pic/images/05-glyphs-on-shape-circles.png" alt="Glyphs composited on blue circles" width="100%" />
+<p><strong>Mandatory gate:</strong> show this to yourself (or your stakeholder) and say “OK” before the agent builds the <code>.pptx</code>.</p>
+<p>This single habit saves hours of “looks wrong, regenerate everything.”</p>
+<hr />
+<h2>Step 6 — Assemble as native PPT layers</h2>
+<p>Have the agent build with something like <code>python-pptx</code>:</p>
+<p>1. Background shape 2. Header / cards / footer bars (shapes) 3. Titles &amp; body (text boxes) 4. Icon groups = circle shape + glyph PNG 5. Panel photos</p>
+<p>For icons:</p>
+<p>- <strong>Filled style:</strong> oval (solid fill) → glyph centered → <strong>group</strong> - <strong>Outline style:</strong> glyph → oval (no fill, stroke) → <strong>group</strong></p>
+<p>Result: in PowerPoint / WPS you can click a title and edit it; ungroup an icon and recolor the circle; replace one panel image without touching the rest.</p>
+<p>That’s the job getting done.</p>
+<hr />
+<h2>How to work with the agent so it helps (not loops)</h2>
+<h3>Do</h3>
+<p>- State the object model up front (“text / shapes / glyphs / panels”) - Demand <strong>icon previews</strong> before full assembly - Fix assets, then reassemble (don’t rebuild the universe for one icon) - Ask for a real download link if you’re on Cloud/mobile (not <code>127.0.0.1</code>) - Save the method as a reusable skill so next time starts smarter</p>
+<h3>Don’t</h3>
+<p>- Accept “I pasted the infographic into the slide” as editable - Let baked backgrounds ride into the final deck - Bake editable chrome (colored circles) into icon PNGs - Change icon style <em>after</em> assembling without going back to the preview gate</p>
+<h3>Prompt snippets that work</h3>
+<p><strong>Start:</strong></p>
+<blockquote><p>Convert this infographic into an editable 16:9 PPT. Split into text boxes, shapes, panel images, and transparent glyph icons. Preview icons first.</p></blockquote>
+<p><strong>When icons look dirty:</strong></p>
+<blockquote><p>Keep only the white lines as transparent PNGs. Put circles back as PPT shapes. Show me glyph-only and glyph-on-circle previews before rebuilding.</p></blockquote>
+<p><strong>When it ships a flat image again:</strong></p>
+<blockquote><p>That’s not editable. Rebuild as layered objects per the split→approve→assemble workflow.</p></blockquote>
+<hr />
+<h2>What this has to do with “harness”</h2>
+<p>A one-off lucky run is not a system.</p>
+<p>A <strong>skill / playbook</strong> — “infographic → editable PPT” — is the small harness that makes the next agent run less chaotic:</p>
+<p>- clear goal - clear acceptance checks - known failure modes - a gate (icon preview) that prevents thrash</p>
+<p>The agent isn’t the hero. <strong>You + a good harness</strong> are.</p>
+<hr />
+<h2>Closing</h2>
+<p>Pretty pictures are easy. Editable slides are a production problem.</p>
+<p>If you want an agent to help you finish:</p>
+<p>1. Force the object model 2. Split the picture into parts 3. Clean glyphs until they’re boringly transparent 4. Approve icons 5. Assemble layers 6. Keep the method for next time</p>
+<p>That’s how you go from “nice image” to “I can actually use this in the meeting.”</p>
+<hr />
+<h3>Assets in this draft folder</h3>
+<table>
+<tr><th>File</th><th>What it shows</th></tr>
+<tr><td><code>images/00-flat-vs-layered.png</code></td><td>Mental model</td></tr>
+<tr><td><code>images/01-target-infographic.png</code></td><td>Starting visual</td></tr>
+<tr><td><code>images/02a–c-panel-*.png</code></td><td>Split panel photos</td></tr>
+<tr><td><code>images/03a–b-*.png</code></td><td>Dirty / baked icons</td></tr>
+<tr><td><code>images/04–06-*.png</code></td><td>Clean glyphs + composition previews</td></tr>
+</table>
+<h3>Related skill</h3>
+<p>Principles distilled from this workflow live as <strong>Editable PPT</strong> (<code>bestpractice_editable_ppt.md</code>) in content-infra / skills.</p>
+  </article>
+</body>
+</html>
