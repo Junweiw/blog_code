@@ -1,101 +1,69 @@
 ---
 name: editable-ppt
 description: >-
-  Turn an infographic, poster, or flat slide image into an editable PowerPoint
-  (.pptx) by splitting it into text boxes, shapes, panel images, and transparent
-  icon glyphs. Use when the user wants an editable PPT/pptx from a picture,
-  complains a slide is not editable, or asks how to convert an infographic into
-  layered PowerPoint objects.
+  Convert a flat visual (infographic, poster, or slide image) into an editable
+  PowerPoint by separating content into independent objects. Use when the user
+  wants an editable pptx from a picture, says a slide is not editable, or asks
+  how to turn an infographic into layered slides.
 ---
 
 # Editable PPT
 
-Rebuild a flat visual (infographic / poster / AI slide image) into a **layered, editable `.pptx`**.
-
 ## Goal
 
-Ship a PowerPoint where the parts people actually change are **independent objects**, not one baked image.
+Turn a **flat picture** into a **layered PowerPoint** where people can edit the parts they actually need to change.
 
-## Core principles
+## Core idea
 
-1. **A picture is pixels. An editable PPT is an object stack.** Split first, assemble second. Never treat “paste the whole image” as the editable deliverable.
-2. **Map objects deliberately:**
-   - Copy → text boxes
-   - Cards / bars / circles / dividers → native shapes
-   - Photos / illustrations → separate pictures (one asset per panel)
-   - Icon drawings → transparent monochrome glyph PNGs
-   - Icon circular backings / rings → PPT oval shapes, then **group** with the glyph
-3. **Do not bake editable chrome into icon PNGs** (no filled brand circle inside the file if that circle should be recolorable).
-4. **Preview glyphs before assembling the deck.** Approve icons, then build.
-5. **Keep brand specifics out of this skill.** Colors, fonts, industry copy come from the brief.
+A finished visual is pixels.  
+An editable slide is a stack of objects.
 
-## Workflow
+Do not treat “paste the whole image into PowerPoint” as an editable deliverable.
 
-### 1. Lock “done”
+## Principles
 
-Confirm: aspect ratio (usually 16:9), what must stay editable, icon style (filled circle vs outline ring), language.
+1. **Decide what must be editable** before building.  
+   Typical candidates: titles, body copy, colors, icons, photos, charts. Everything else can stay as imagery.
 
-### 2. Deconstruct
+2. **Map each editable thing to a native object.**  
+   - Words people will change → text boxes (or editable text frames)  
+   - Colors / frames / dividers / badges people will restyle → shapes  
+   - Photos / illustrations people will swap → separate image files  
+   - Icons people will recolor or replace → prefer drawable strokes / glyphs separate from their background chrome  
 
-List every object: text blocks, structural shapes, panel images, icon glyphs vs circular backings.
+3. **Keep structural chrome out of baked assets when it needs restyling.**  
+   If a circle, card, or bar must change color later, make it a shape—not pixels inside a PNG.
 
-### 3. Produce discrete assets
+4. **Split first, assemble second.**  
+   Produce discrete parts, approve tricky parts (especially icons), then compose the slide. Don’t regenerate the whole deck to fix one asset.
 
-- One image per visual panel
-- Glyph-only transparent PNGs for icons
-- Structural chrome as shapes, not flattened into photos
+5. **Stay brief-agnostic.**  
+   Layout, palette, fonts, industry, and language come from the current request. This skill does not prescribe a brand look.
 
-### 4. Icon preview gate (mandatory)
+## Working loop
 
-Show:
+1. Deconstruct the source visual into object types.  
+2. Agree the edit model with the user (what must stay editable).  
+3. Produce assets for images/glyphs; use shapes for chrome.  
+4. Preview ambiguous assets alone before full assembly.  
+5. Assemble layers into `.pptx`.  
+6. Deliver a file the user can open and edit.
 
-- Glyphs on dark background
-- Glyphs on light background (proves true transparency)
-- Optional mock: glyph on a circle shape (final look)
+## Acceptance
 
-Wait for OK before building `.pptx`.
+- The promised editable parts are real objects (not flattened into one image).  
+- Swapping or editing one part does not require regenerating the whole visual.  
+- Aspect ratio matches the brief.  
+- The user can download/open the `.pptx` on their device.
 
-### 5. Assemble with native layers
+## Anti-patterns
 
-Typical bottom → top: background → cards/bars → text → icon groups → panel photos.
-
-- **Filled icon group:** solid oval + centered glyph → group  
-- **Outline icon group:** glyph + hollow stroked oval → group  
-
-Prefer a regeneratable script (e.g. `python-pptx`) when the deck will be rebuilt.
-
-### 6. Deliver
-
-- Correct aspect ratio
-- Real download URL when the user is on Cloud/mobile (not `127.0.0.1`)
-- Note that icon groups can be ungrouped to recolor circles or swap glyphs
-
-## Acceptance checklist
-
-- [ ] Target aspect ratio correct (usually 16:9)
-- [ ] Editable copy is in text boxes
-- [ ] Recolorable chrome is shapes
-- [ ] Replaceable panels are separate pictures
-- [ ] Icons are glyph + shape when that model was chosen, grouped
-- [ ] No opaque square / fake checkerboard around glyphs
-- [ ] User has a working download path
-
-## Known traps
-
-| Trap | Fix |
-|------|-----|
-| Whole image pasted as “editable” | Rebuild as layered objects; flat image at most as a reference slide |
-| Icons with navy squares or baked checkerboard | Extract glyph-only; circles as shapes |
-| Recolorable circles baked into PNGs | Split glyph vs circle, then group |
-| Regenerating the whole deck to fix one icon | Fix the asset → re-preview → reassemble |
-| Localhost links for Cloud/mobile users | Push and share raw/artifact download URLs |
-
-## Boundaries
-
-- Not a brand system (no fixed palette in this skill)
-- Not a substitute for “full-bleed AI-rendered deck” workflows when editability is not required
-- Does not promise pixel-identical AI art and full editability in one layer
+- Shipping one full-bleed image as “the editable slide”  
+- Leaving placeholder “replace image” boxes in a final handoff  
+- Baking restyleable chrome into icon/panel PNGs  
+- Rebuilding the entire deck because one icon/asset is wrong  
+- Encoding one project’s colors, layout, or industry into the method
 
 ## One-liner
 
-**Split into text / shapes / images / glyphs → approve glyphs → assemble layered PPT — never ship one flat picture as editable.**
+**Separate what must change into objects, keep the rest as assets, then assemble — never confuse a pretty picture with an editable slide.**
